@@ -1,21 +1,26 @@
 pipeline {
     agent {
         docker {
+            // 사용할 Docker 이미지 지정
             image 'maven:3.9.0'
+            // Docker 컨테이너 실행 시 추가할 인자
             args '-v /root/.m2:/root/.m2'
         }
     }
     stages {
         stage('Build') {
             steps {
+                // Maven을 사용하여 테스트를 생략하고 클린 패키징
                 sh 'mvn -B -DskipTests clean package'
             }
         }
         stage('Test') {
             steps {
+                // Maven을 사용하여 테스트 실행
                 sh 'mvn test'
             }
             post {
+                // 테스트 결과를 항상 JUnit 형식으로 보고
                 always {
                     junit 'target/surefire-reports/*.xml'
                 }
@@ -23,6 +28,7 @@ pipeline {
         }
         stage('Deliver') {
             steps {
+                // 배포 스크립트 실행
                 sh './jenkins/scripts/deliver.sh'
             }
         }
